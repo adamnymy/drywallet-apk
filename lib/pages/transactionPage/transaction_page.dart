@@ -1,0 +1,108 @@
+import 'package:flutter/material.dart';
+
+enum TxTypeForm { income, expense }
+
+/// Returns a Map with keys: title (String), amount (double), type (String), category (String)
+class TransactionPage extends StatefulWidget {
+  const TransactionPage({super.key});
+
+  @override
+  State<TransactionPage> createState() => _TransactionPageState();
+}
+
+class _TransactionPageState extends State<TransactionPage> {
+  final _titleController = TextEditingController();
+  final _amountController = TextEditingController();
+  TxTypeForm _type = TxTypeForm.expense;
+  String _selectedCategory = 'General';
+
+  final List<String> _categories = [
+    'General',
+    'Food',
+    'Salary',
+    'Transport',
+    'Cafe',
+    'Bills',
+  ];
+
+  void _submit() {
+    final title = _titleController.text.trim();
+    final amount = double.tryParse(_amountController.text) ?? 0;
+    if (title.isEmpty || amount <= 0) return;
+
+    Navigator.of(context).pop({
+      'title': title,
+      'amount': amount,
+      'type': _type == TxTypeForm.expense ? 'expense' : 'income',
+      'category': _selectedCategory,
+    });
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _amountController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Add Transaction')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ChoiceChip(
+                  label: const Text('Expense'),
+                  selected: _type == TxTypeForm.expense,
+                  onSelected: (_) => setState(() => _type = TxTypeForm.expense),
+                ),
+                const SizedBox(width: 8),
+                ChoiceChip(
+                  label: const Text('Income'),
+                  selected: _type == TxTypeForm.income,
+                  onSelected: (_) => setState(() => _type = TxTypeForm.income),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _titleController,
+              decoration: const InputDecoration(labelText: 'Title'),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _amountController,
+              decoration: const InputDecoration(labelText: 'Amount'),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              initialValue: _selectedCategory,
+              items: _categories
+                  .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                  .toList(),
+              onChanged: (v) =>
+                  setState(() => _selectedCategory = v ?? _selectedCategory),
+              decoration: const InputDecoration(labelText: 'Category'),
+            ),
+            const Spacer(),
+            ElevatedButton(
+              onPressed: _submit,
+              child: Text(
+                _type == TxTypeForm.expense ? 'Add Expense' : 'Add Income',
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
