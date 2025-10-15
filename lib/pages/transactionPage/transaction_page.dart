@@ -54,6 +54,32 @@ class _TransactionPageState extends State<TransactionPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Hero target: circular container matching FAB -> creates morph
+            Align(
+              alignment: Alignment.topCenter,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 12.0),
+                child: Hero(
+                  tag: 'add_tx_fab',
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        color:
+                            Theme.of(
+                              context,
+                            ).floatingActionButtonTheme.backgroundColor ??
+                            Theme.of(context).colorScheme.secondary,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.add, color: Colors.white),
+                    ),
+                  ),
+                ),
+              ),
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

@@ -109,7 +109,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('MoneyTracker'),
+        title: const Text('DryWallet'),
         actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.notifications)),
           IconButton(onPressed: () {}, icon: const Icon(Icons.settings)),
@@ -136,7 +136,10 @@ class _HomePageState extends State<HomePage> {
               width: double.infinity,
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xFF6A11CB), Color(0xFF2575FC)],
+                  colors: [
+                    Color.fromARGB(255, 136, 47, 231),
+                    Color.fromARGB(255, 152, 170, 201),
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -268,6 +271,9 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        // Use the built-in FAB heroTag to avoid nesting Hero widgets
+        heroTag: 'add_tx_fab',
+        // Hero tag 'add_tx_fab' for FAB-to-page transition
         onPressed: () async {
           final result = await Navigator.of(
             context,
