@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:fl_chart/fl_chart.dart';
 import '../transactionPage/transaction_page.dart';
 import '../../widgets/bottom_nav_bar.dart';
 
@@ -117,6 +118,25 @@ class _HomePageState extends State<HomePage>
     });
   }
 
+  // Calculate weekly spending data for the graph
+  List<FlSpot> _getWeeklyData() {
+    final now = DateTime.now();
+    final weekData = List.generate(7, (index) {
+      final date = now.subtract(Duration(days: 6 - index));
+      final dayTransactions = _transactions.where((tx) {
+        return tx.date.year == date.year &&
+            tx.date.month == date.month &&
+            tx.date.day == date.day;
+      });
+      final total = dayTransactions.fold<double>(
+        0.0,
+        (sum, tx) => sum + tx.amount.abs(),
+      );
+      return FlSpot(index.toDouble(), total);
+    });
+    return weekData;
+  }
+
   // Add-transaction sheet removed; navigation to TransactionPage will be used.
 
   // (Removed) 7-day summary calculation — not used in the current layout.
@@ -223,6 +243,224 @@ class _HomePageState extends State<HomePage>
                         ),
                       ),
                     ],
+                  ),
+                ),
+              ),
+            ),
+
+            // Weekly spending graph
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: Card(
+                  elevation: 0,
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: BorderSide(color: Colors.grey[200]!, width: 1),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Weekly Overview',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey[800],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(
+                                  0xFF7C3AED,
+                                ).withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                'Last 7 days',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFF7C3AED),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        SizedBox(
+                          height: 180,
+                          child: _transactions.isEmpty
+                              ? Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.show_chart,
+                                        size: 48,
+                                        color: Colors.grey[300],
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Text(
+                                        'No data yet',
+                                        style: TextStyle(
+                                          color: Colors.grey[400],
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : LineChart(
+                                  LineChartData(
+                                    gridData: FlGridData(
+                                      show: true,
+                                      drawVerticalLine: false,
+                                      horizontalInterval: 1,
+                                      getDrawingHorizontalLine: (value) {
+                                        return FlLine(
+                                          color: Colors.grey[200]!,
+                                          strokeWidth: 1,
+                                        );
+                                      },
+                                    ),
+                                    titlesData: FlTitlesData(
+                                      show: true,
+                                      rightTitles: const AxisTitles(
+                                        sideTitles: SideTitles(
+                                          showTitles: false,
+                                        ),
+                                      ),
+                                      topTitles: const AxisTitles(
+                                        sideTitles: SideTitles(
+                                          showTitles: false,
+                                        ),
+                                      ),
+                                      leftTitles: AxisTitles(
+                                        sideTitles: SideTitles(
+                                          showTitles: true,
+                                          reservedSize: 40,
+                                          getTitlesWidget: (value, meta) {
+                                            if (value == meta.max ||
+                                                value == meta.min) {
+                                              return const SizedBox();
+                                            }
+                                            return Text(
+                                              '\$${value.toInt()}',
+                                              style: TextStyle(
+                                                color: Colors.grey[600],
+                                                fontSize: 11,
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                      bottomTitles: AxisTitles(
+                                        sideTitles: SideTitles(
+                                          showTitles: true,
+                                          reservedSize: 30,
+                                          getTitlesWidget: (value, meta) {
+                                            final days = [
+                                              'Mon',
+                                              'Tue',
+                                              'Wed',
+                                              'Thu',
+                                              'Fri',
+                                              'Sat',
+                                              'Sun',
+                                            ];
+                                            if (value.toInt() >= 0 &&
+                                                value.toInt() < days.length) {
+                                              return Padding(
+                                                padding: const EdgeInsets.only(
+                                                  top: 8.0,
+                                                ),
+                                                child: Text(
+                                                  days[value.toInt()],
+                                                  style: TextStyle(
+                                                    color: Colors.grey[600],
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                            return const SizedBox();
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                    borderData: FlBorderData(show: false),
+                                    minX: 0,
+                                    maxX: 6,
+                                    minY: 0,
+                                    maxY:
+                                        _getWeeklyData()
+                                            .map((e) => e.y)
+                                            .fold(
+                                              0.0,
+                                              (a, b) => a > b ? a : b,
+                                            ) *
+                                        1.2,
+                                    lineBarsData: [
+                                      LineChartBarData(
+                                        spots: _getWeeklyData(),
+                                        isCurved: true,
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            Color(0xFF7C3AED),
+                                            Color(0xFFEC4899),
+                                          ],
+                                        ),
+                                        barWidth: 3,
+                                        isStrokeCapRound: true,
+                                        dotData: FlDotData(
+                                          show: true,
+                                          getDotPainter:
+                                              (spot, percent, barData, index) {
+                                                return FlDotCirclePainter(
+                                                  radius: 4,
+                                                  color: Colors.white,
+                                                  strokeWidth: 3,
+                                                  strokeColor: const Color(
+                                                    0xFF7C3AED,
+                                                  ),
+                                                );
+                                              },
+                                        ),
+                                        belowBarData: BarAreaData(
+                                          show: true,
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              const Color(
+                                                0xFF7C3AED,
+                                              ).withValues(alpha: 0.3),
+                                              const Color(
+                                                0xFFEC4899,
+                                              ).withValues(alpha: 0.1),
+                                            ],
+                                            begin: Alignment.topCenter,
+                                            end: Alignment.bottomCenter,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
