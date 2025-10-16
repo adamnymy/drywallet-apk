@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../transactionPage/transaction_page.dart';
+import '../../widgets/bottom_nav_bar.dart';
 
 enum TxType { income, expense }
 
@@ -30,33 +31,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final List<TransactionItem> _transactions = [
-    // sample data
-    TransactionItem(
-      id: 't1',
-      title: 'Salary',
-      amount: 2500.00,
-      date: DateTime.now().subtract(const Duration(days: 2)),
-      type: TxType.income,
-      category: 'Salary',
-    ),
-    TransactionItem(
-      id: 't2',
-      title: 'Groceries',
-      amount: -78.23,
-      date: DateTime.now().subtract(const Duration(days: 1)),
-      type: TxType.expense,
-      category: 'Food',
-    ),
-    TransactionItem(
-      id: 't3',
-      title: 'Coffee',
-      amount: -4.50,
-      date: DateTime.now(),
-      type: TxType.expense,
-      category: 'Cafe',
-    ),
-  ];
+  // Start with no transactions — user will add real data via the TransactionPage
+  final List<TransactionItem> _transactions = [];
+  int _selectedIndex = 0;
 
   double get _balance {
     return _transactions.fold(0.0, (sum, tx) => sum + tx.amount);
@@ -115,18 +92,9 @@ class _HomePageState extends State<HomePage> {
           IconButton(onPressed: () {}, icon: const Icon(Icons.settings)),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'Stats'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.credit_card),
-            label: 'Cards',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
-        currentIndex: 0,
-        type: BottomNavigationBarType.fixed,
+      bottomNavigationBar: BottomNavBar(
+        currentIndex: _selectedIndex,
+        onTap: (i) => setState(() => _selectedIndex = i),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -137,8 +105,8 @@ class _HomePageState extends State<HomePage> {
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Color.fromARGB(255, 136, 47, 231),
-                    Color.fromARGB(255, 152, 170, 201),
+                    Color.fromARGB(255, 76, 188, 121),
+                    Color.fromARGB(255, 156, 154, 221),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -180,88 +148,110 @@ class _HomePageState extends State<HomePage> {
 
             // quick-action card removed
 
-            // Recent Transactions header
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 18.0,
-                vertical: 8,
+            // Recent Transactions header / empty state
+            if (_transactions.isNotEmpty) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18.0,
+                  vertical: 8,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Recent Transactions',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    TextButton(onPressed: () {}, child: const Text('See All')),
+                  ],
+                ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Recent Transactions',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  TextButton(onPressed: () {}, child: const Text('See All')),
-                ],
-              ),
-            ),
 
-            // Transactions list (card style)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                children: _transactions.map((tx) {
-                  return Dismissible(
-                    key: ValueKey(tx.id),
-                    direction: DismissDirection.endToStart,
-                    background: Container(
-                      alignment: Alignment.centerRight,
-                      padding: const EdgeInsets.only(right: 16),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(12),
+              // Transactions list (card style)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Column(
+                  children: _transactions.map((tx) {
+                    return Dismissible(
+                      key: ValueKey(tx.id),
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.only(right: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.delete, color: Colors.white),
                       ),
-                      child: const Icon(Icons.delete, color: Colors.white),
-                    ),
-                    onDismissed: (_) => _removeTransaction(tx.id),
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                      onDismissed: (_) => _removeTransaction(tx.id),
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: ListTile(
+                          leading: Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: tx.type == TxType.expense
+                                  ? Color.fromRGBO(244, 67, 54, 0.08)
+                                  : Color.fromRGBO(76, 175, 80, 0.08),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Icon(
+                              tx.type == TxType.expense
+                                  ? Icons.fastfood
+                                  : Icons.attach_money,
+                              color: tx.type == TxType.expense
+                                  ? Colors.red
+                                  : Colors.green,
+                            ),
+                          ),
+                          title: Text(
+                            tx.title,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          subtitle: Text(
+                            tx.category,
+                            style: const TextStyle(color: Colors.grey),
+                          ),
+                          trailing: Text(
+                            NumberFormat.simpleCurrency().format(tx.amount),
+                            style: TextStyle(
+                              color: tx.type == TxType.expense
+                                  ? Colors.red
+                                  : Colors.green,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       ),
-                      child: ListTile(
-                        leading: Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: tx.type == TxType.expense
-                                ? Color.fromRGBO(244, 67, 54, 0.08)
-                                : Color.fromRGBO(76, 175, 80, 0.08),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Icon(
-                            tx.type == TxType.expense
-                                ? Icons.fastfood
-                                : Icons.attach_money,
-                            color: tx.type == TxType.expense
-                                ? Colors.red
-                                : Colors.green,
-                          ),
-                        ),
-                        title: Text(
-                          tx.title,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                        subtitle: Text(
-                          tx.category,
-                          style: const TextStyle(color: Colors.grey),
-                        ),
-                        trailing: Text(
-                          NumberFormat.simpleCurrency().format(tx.amount),
-                          style: TextStyle(
-                            color: tx.type == TxType.expense
-                                ? Colors.red
-                                : Colors.green,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
+                    );
+                  }).toList(),
+                ),
               ),
-            ),
+            ] else ...[
+              const SizedBox(height: 24),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.0),
+                child: Column(
+                  children: [
+                    Icon(Icons.inbox, size: 48, color: Colors.grey[400]),
+                    const SizedBox(height: 12),
+                    Text(
+                      'No transactions yet',
+                      style: TextStyle(color: Colors.grey[700]),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Tap + to add your first transaction.',
+                      style: TextStyle(color: Colors.grey[500]),
+                    ),
+                  ],
+                ),
+              ),
+            ],
 
             const SizedBox(height: 16),
 
