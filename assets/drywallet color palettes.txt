@@ -1,0 +1,16 @@
+drywallet color palettes
+
+Primary
+#7c3aed
+
+Primary Dark
+#6d28d9
+
+Income
+#10b981
+
+Expense
+#ef4444
+
+Warning
+#f59e0b

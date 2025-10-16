@@ -39,6 +39,20 @@ class _HomePageState extends State<HomePage>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
+  // Category to emoji mapping (matching TransactionPage)
+  final Map<String, String> _categoryEmojis = {
+    'Food': '🍔',
+    'Salary': '💰',
+    'Transport': '🚗',
+    'Cafe': '☕',
+    'Bills': '📄',
+    'Shopping': '🛍️',
+    'Entertainment': '🎬',
+    'Health': '💊',
+    'Education': '📚',
+    'Other': '📌',
+  };
+
   @override
   void initState() {
     super.initState();
@@ -149,7 +163,7 @@ class _HomePageState extends State<HomePage>
                           76,
                           188,
                           121,
-                        ).withOpacity(0.3),
+                        ).withValues(alpha: 0.3),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -193,8 +207,8 @@ class _HomePageState extends State<HomePage>
                         ),
                         decoration: BoxDecoration(
                           color: monthDelta >= 0
-                              ? Colors.greenAccent.withOpacity(0.2)
-                              : Colors.redAccent.withOpacity(0.2),
+                              ? Colors.greenAccent.withValues(alpha: 0.2)
+                              : Colors.redAccent.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -305,29 +319,24 @@ class _HomePageState extends State<HomePage>
                                         height: 44,
                                         decoration: BoxDecoration(
                                           color: tx.type == TxType.expense
-                                              ? Color.fromRGBO(
-                                                  244,
-                                                  67,
-                                                  54,
-                                                  0.08,
+                                              ? Colors.red.withValues(
+                                                  alpha: 0.08,
                                                 )
-                                              : Color.fromRGBO(
-                                                  76,
-                                                  175,
-                                                  80,
-                                                  0.08,
+                                              : Colors.green.withValues(
+                                                  alpha: 0.08,
                                                 ),
                                           borderRadius: BorderRadius.circular(
                                             10,
                                           ),
                                         ),
-                                        child: Icon(
-                                          tx.type == TxType.expense
-                                              ? Icons.fastfood
-                                              : Icons.attach_money,
-                                          color: tx.type == TxType.expense
-                                              ? Colors.red
-                                              : Colors.green,
+                                        child: Center(
+                                          child: Text(
+                                            _categoryEmojis[tx.category] ??
+                                                '📌',
+                                            style: const TextStyle(
+                                              fontSize: 22,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                       title: Text(
@@ -434,9 +443,38 @@ class _HomePageState extends State<HomePage>
           elevation: 6,
           // Hero tag 'add_tx_fab' for FAB-to-page transition
           onPressed: () async {
-            final result = await Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const TransactionPage()));
+            final result = await Navigator.of(context).push(
+              PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    const TransactionPage(),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                      const begin = Offset(0.0, 1.0);
+                      const end = Offset.zero;
+                      const curve = Curves.easeInOutCubic;
+
+                      var tween = Tween(
+                        begin: begin,
+                        end: end,
+                      ).chain(CurveTween(curve: curve));
+                      var offsetAnimation = animation.drive(tween);
+
+                      var fadeAnimation = Tween<double>(begin: 0.0, end: 1.0)
+                          .chain(CurveTween(curve: Curves.easeIn))
+                          .animate(animation);
+
+                      return SlideTransition(
+                        position: offsetAnimation,
+                        child: FadeTransition(
+                          opacity: fadeAnimation,
+                          child: child,
+                        ),
+                      );
+                    },
+                transitionDuration: const Duration(milliseconds: 400),
+                reverseTransitionDuration: const Duration(milliseconds: 350),
+              ),
+            );
             if (result is Map<String, dynamic>) {
               final title = result['title'] as String?;
               final amount = result['amount'] as double?;
