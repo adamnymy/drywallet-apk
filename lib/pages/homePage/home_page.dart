@@ -310,8 +310,14 @@ class _HomePageState extends State<HomePage>
                                   ),
                                   onDismissed: (_) => _removeTransaction(tx.id),
                                   child: Card(
+                                    elevation: 0,
+                                    color: Colors.grey[100],
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
+                                      side: BorderSide(
+                                        color: Colors.grey[300]!,
+                                        width: 1,
+                                      ),
                                     ),
                                     child: ListTile(
                                       leading: Container(

@@ -133,13 +133,13 @@ class _CategoriesPageState extends State<CategoriesPage>
                       decoration: BoxDecoration(
                         color: isSelected
                             ? primaryColor.withValues(alpha: 0.1)
-                            : Colors.white,
+                            : Colors.grey[100],
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: isSelected
                               ? primaryColor
                               : Colors.grey.shade300,
-                          width: isSelected ? 3 : 1,
+                          width: isSelected ? 2 : 1,
                         ),
                         boxShadow: [
                           BoxShadow(

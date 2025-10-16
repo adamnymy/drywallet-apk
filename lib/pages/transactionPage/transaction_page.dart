@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'categoriesPage/categories_page.dart';
 
 enum TxTypeForm { income, expense }
 
-/// Returns a Map with keys: title (String), amount (double), type (String), category (String)
+/// Returns a Map with keys: title (String), amount (double), type (String), category (String), date (DateTime), notes (String)
 class TransactionPage extends StatefulWidget {
   const TransactionPage({super.key});
 
@@ -15,8 +16,11 @@ class _TransactionPageState extends State<TransactionPage>
     with SingleTickerProviderStateMixin {
   final _titleController = TextEditingController();
   final _amountController = TextEditingController();
+  final _notesController = TextEditingController();
   TxTypeForm _type = TxTypeForm.expense;
   String _selectedCategory = 'Food';
+  DateTime _selectedDate = DateTime.now();
+  TimeOfDay _selectedTime = TimeOfDay.now();
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -54,24 +58,98 @@ class _TransactionPageState extends State<TransactionPage>
     });
   }
 
+  Future<void> _selectDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: _type == TxTypeForm.expense
+                  ? const Color(0xFFEF4444)
+                  : const Color(0xFF10B981),
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: Colors.black,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
+    }
+  }
+
+  Future<void> _selectTime() async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: _selectedTime,
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: _type == TxTypeForm.expense
+                  ? const Color(0xFFEF4444)
+                  : const Color(0xFF10B981),
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: Colors.black,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && picked != _selectedTime) {
+      setState(() {
+        _selectedTime = picked;
+      });
+    }
+  }
+
   void _submit() {
     final title = _titleController.text.trim();
     final amount = double.tryParse(_amountController.text) ?? 0;
+    final notes = _notesController.text.trim();
+
     if (title.isEmpty || amount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter valid title and amount'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: const Text('Please enter valid title and amount'),
+          duration: const Duration(seconds: 2),
+          backgroundColor: Colors.red.shade600,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
       return;
     }
+
+    // Combine date and time
+    final dateTime = DateTime(
+      _selectedDate.year,
+      _selectedDate.month,
+      _selectedDate.day,
+      _selectedTime.hour,
+      _selectedTime.minute,
+    );
 
     Navigator.of(context).pop({
       'title': title,
       'amount': amount,
       'type': _type == TxTypeForm.expense ? 'expense' : 'income',
       'category': _selectedCategory,
+      'date': dateTime,
+      'notes': notes.isEmpty ? null : notes,
     });
   }
 
@@ -80,12 +158,15 @@ class _TransactionPageState extends State<TransactionPage>
     _animationController.dispose();
     _titleController.dispose();
     _amountController.dispose();
+    _notesController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final selectedEmoji = _categoryEmojis[_selectedCategory] ?? '📌';
+    final dateFormat = DateFormat('MMM dd, yyyy');
+    final timeFormat = DateFormat('hh:mm a');
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -100,6 +181,17 @@ class _TransactionPageState extends State<TransactionPage>
           'New Transaction',
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
+        actions: [
+          TextButton.icon(
+            onPressed: _submit,
+            icon: const Icon(Icons.check),
+            label: const Text('Save'),
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFF7C3AED),
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: FadeTransition(
         opacity: _fadeAnimation,
@@ -203,10 +295,13 @@ class _TransactionPageState extends State<TransactionPage>
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: _type == TxTypeForm.expense
-                                  ? [Colors.red.shade400, Colors.red.shade600]
+                                  ? [
+                                      const Color(0xFFEF4444),
+                                      const Color(0xFFDC2626),
+                                    ]
                                   : [
-                                      Colors.green.shade400,
-                                      Colors.green.shade600,
+                                      const Color(0xFF10B981),
+                                      const Color(0xFF059669),
                                     ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
@@ -216,8 +311,8 @@ class _TransactionPageState extends State<TransactionPage>
                               BoxShadow(
                                 color:
                                     (_type == TxTypeForm.expense
-                                            ? Colors.red
-                                            : Colors.green)
+                                            ? const Color(0xFFEF4444)
+                                            : const Color(0xFF10B981))
                                         .withValues(alpha: 0.3),
                                 blurRadius: 20,
                                 offset: const Offset(0, 10),
@@ -253,8 +348,8 @@ class _TransactionPageState extends State<TransactionPage>
                                     Icons.edit,
                                     size: 16,
                                     color: _type == TxTypeForm.expense
-                                        ? Colors.red.shade600
-                                        : Colors.green.shade600,
+                                        ? const Color(0xFFEF4444)
+                                        : const Color(0xFF10B981),
                                   ),
                                 ),
                               ),
@@ -317,35 +412,51 @@ class _TransactionPageState extends State<TransactionPage>
 
               // Amount input card
               Card(
-                elevation: 2,
+                elevation: 0,
+                color: Colors.grey[100],
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: Colors.grey[300]!, width: 1),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Amount',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.5,
-                        ),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.attach_money,
+                            size: 16,
+                            color: Colors.grey[600],
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Amount',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
                       ),
                       TextField(
                         controller: _amountController,
-                        style: const TextStyle(
-                          fontSize: 32,
+                        autofocus: true,
+                        style: TextStyle(
+                          fontSize: 40,
                           fontWeight: FontWeight.bold,
+                          color: _type == TxTypeForm.expense
+                              ? const Color(0xFFEF4444)
+                              : const Color(0xFF10B981),
                         ),
                         decoration: InputDecoration(
                           hintText: '0.00',
                           prefixText: '\$ ',
                           prefixStyle: TextStyle(
-                            fontSize: 32,
+                            fontSize: 40,
                             fontWeight: FontWeight.bold,
                             color: Colors.grey[400],
                           ),
@@ -364,9 +475,11 @@ class _TransactionPageState extends State<TransactionPage>
 
               // Title input card
               Card(
-                elevation: 2,
+                elevation: 0,
+                color: Colors.grey[100],
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: Colors.grey[300]!, width: 1),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
@@ -375,12 +488,158 @@ class _TransactionPageState extends State<TransactionPage>
                   ),
                   child: TextField(
                     controller: _titleController,
+                    textCapitalization: TextCapitalization.sentences,
                     decoration: InputDecoration(
-                      labelText: 'Description',
-                      hintText: 'e.g., Coffee with friends',
-                      prefixIcon: const Icon(Icons.edit_note),
+                      labelText: 'Title',
+                      hintText: 'e.g., Lunch at restaurant',
+                      prefixIcon: const Icon(Icons.title),
                       border: InputBorder.none,
                       labelStyle: TextStyle(color: Colors.grey[600]),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Date and Time selector
+              Card(
+                elevation: 0,
+                color: Colors.grey[100],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: Colors.grey[300]!, width: 1),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.calendar_today,
+                            size: 16,
+                            color: Colors.grey[600],
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Date & Time',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: InkWell(
+                              onTap: _selectDate,
+                              borderRadius: BorderRadius.circular(12),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[100],
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.event,
+                                      size: 18,
+                                      color: Colors.grey[700],
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      dateFormat.format(_selectedDate),
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.grey[800],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: InkWell(
+                              onTap: _selectTime,
+                              borderRadius: BorderRadius.circular(12),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[100],
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.access_time,
+                                      size: 18,
+                                      color: Colors.grey[700],
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      _selectedTime.format(context),
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.grey[800],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Notes input card
+              Card(
+                elevation: 0,
+                color: Colors.grey[100],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: Colors.grey[300]!, width: 1),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 8,
+                  ),
+                  child: TextField(
+                    controller: _notesController,
+                    maxLines: 3,
+                    textCapitalization: TextCapitalization.sentences,
+                    decoration: InputDecoration(
+                      labelText: 'Notes (Optional)',
+                      hintText: 'Add any additional details...',
+                      prefixIcon: const Padding(
+                        padding: EdgeInsets.only(bottom: 40),
+                        child: Icon(Icons.notes),
+                      ),
+                      border: InputBorder.none,
+                      labelStyle: TextStyle(color: Colors.grey[600]),
+                      hintStyle: TextStyle(color: Colors.grey[400]),
                     ),
                   ),
                 ),
@@ -394,20 +653,30 @@ class _TransactionPageState extends State<TransactionPage>
                   onPressed: _submit,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _type == TxTypeForm.expense
-                        ? Colors.red.shade600
-                        : Colors.green.shade600,
+                        ? const Color(0xFFEF4444)
+                        : const Color(0xFF10B981),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                     elevation: 4,
                   ),
-                  child: Text(
-                    _type == TxTypeForm.expense ? 'Add Expense' : 'Add Income',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.check_circle_outline),
+                      const SizedBox(width: 8),
+                      Text(
+                        _type == TxTypeForm.expense
+                            ? 'Add Expense'
+                            : 'Add Income',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
