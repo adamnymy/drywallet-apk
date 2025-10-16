@@ -179,7 +179,7 @@ class _TransactionPageState extends State<TransactionPage>
         ),
         title: const Text(
           'New Transaction',
-          style: TextStyle(fontWeight: FontWeight.w600),
+          style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black),
         ),
         actions: [
           TextButton.icon(
