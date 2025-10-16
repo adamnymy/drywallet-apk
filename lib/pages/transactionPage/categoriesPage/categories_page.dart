@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../transaction_page.dart';
 
 class CategoriesPage extends StatefulWidget {
@@ -20,7 +21,6 @@ class CategoriesPage extends StatefulWidget {
 class _CategoriesPageState extends State<CategoriesPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
   String? _selectedCategory;
 
   @override
@@ -30,10 +30,6 @@ class _CategoriesPageState extends State<CategoriesPage>
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
-    );
-    _fadeAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
     );
     _animationController.forward();
   }
@@ -51,148 +47,163 @@ class _CategoriesPageState extends State<CategoriesPage>
         ? Colors.red
         : Colors.green;
 
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text(
-          'Select Category',
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
-      ),
-      body: FadeTransition(
-        opacity: _fadeAnimation,
-        child: Column(
-          children: [
-            // Header hint
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Text(
-                'Choose a category for your ${widget.transactionType == TxTypeForm.expense ? 'expense' : 'income'}',
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                textAlign: TextAlign.center,
-              ),
-            ),
-
-            // Category grid
-            Expanded(
-              child: GridView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  childAspectRatio: 0.85,
+    return GestureDetector(
+      onVerticalDragUpdate: (details) {
+        if (details.primaryDelta != null && details.primaryDelta! < -10) {
+          Navigator.of(context).push(
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => Scaffold(
+                body: CategoriesPage(
+                  currentCategory: widget.currentCategory,
+                  categoryEmojis: widget.categoryEmojis,
+                  transactionType: widget.transactionType,
                 ),
-                itemCount: categories.length,
-                itemBuilder: (context, index) {
-                  final category = categories[index];
-                  final emoji = widget.categoryEmojis[category] ?? '📌';
-                  final isSelected = category == _selectedCategory;
+              ),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                    return FadeTransition(opacity: animation, child: child);
+                  },
+            ),
+          );
+        }
+      },
+      child: Column(
+        children: [
+          // Drag handle
+          Container(
+            width: 40,
+            height: 6,
+            margin: const EdgeInsets.symmetric(vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.grey[400],
+              borderRadius: BorderRadius.circular(3),
+            ),
+          ),
 
-                  return TweenAnimationBuilder<double>(
-                    duration: Duration(milliseconds: 300 + (index * 50)),
-                    curve: Curves.easeOutBack,
-                    tween: Tween(begin: 0.0, end: 1.0),
-                    builder: (context, value, child) {
-                      return Transform.scale(
-                        scale: value,
-                        child: Opacity(opacity: value, child: child),
-                      );
+          // Header hint
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Text(
+              'Choose a category for your ${widget.transactionType == TxTypeForm.expense ? 'expense' : 'income'}',
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              textAlign: TextAlign.center,
+            ),
+          ),
+
+          // Category grid
+          Expanded(
+            child: GridView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 0.85,
+              ),
+              itemCount: categories.length,
+              itemBuilder: (context, index) {
+                final category = categories[index];
+                final iconPath =
+                    'assets/icons/categories/${category.toLowerCase().replaceAll(' ', '-')}.svg';
+                final isSelected = category == _selectedCategory;
+
+                return TweenAnimationBuilder<double>(
+                  duration: Duration(milliseconds: 300 + (index * 50)),
+                  curve: Curves.easeOutBack,
+                  tween: Tween(begin: 0.0, end: 1.0),
+                  builder: (context, value, child) {
+                    return Transform.scale(
+                      scale: value,
+                      child: Opacity(opacity: value, child: child),
+                    );
+                  },
+                  child: InkWell(
+                    onTap: () async {
+                      setState(() => _selectedCategory = category);
+                      // Add a small scale pulse animation on tap
+                      await Future.delayed(const Duration(milliseconds: 150));
+                      if (!context.mounted) return;
+                      Navigator.of(context).pop(category);
                     },
-                    child: InkWell(
-                      onTap: () async {
-                        setState(() => _selectedCategory = category);
-                        // Add a small scale pulse animation on tap
-                        await Future.delayed(const Duration(milliseconds: 150));
-                        if (!context.mounted) return;
-                        Navigator.of(context).pop(category);
-                      },
-                      borderRadius: BorderRadius.circular(20),
-                      splashColor: primaryColor.withValues(alpha: 0.2),
-                      highlightColor: primaryColor.withValues(alpha: 0.1),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    splashColor: primaryColor.withValues(alpha: 0.2),
+                    highlightColor: primaryColor.withValues(alpha: 0.1),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? primaryColor.withValues(alpha: 0.1)
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
                           color: isSelected
-                              ? primaryColor.withValues(alpha: 0.1)
-                              : Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
+                              ? primaryColor
+                              : Colors.grey.shade300,
+                          width: isSelected ? 3 : 1,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
                             color: isSelected
-                                ? primaryColor
-                                : Colors.grey.shade300,
-                            width: isSelected ? 3 : 1,
+                                ? primaryColor.withValues(alpha: 0.2)
+                                : Colors.black.withValues(alpha: 0.05),
+                            blurRadius: isSelected ? 12 : 4,
+                            offset: Offset(0, isSelected ? 4 : 2),
                           ),
-                          boxShadow: [
-                            BoxShadow(
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 64,
+                            height: 64,
+                            decoration: BoxDecoration(
                               color: isSelected
-                                  ? primaryColor.withValues(alpha: 0.2)
-                                  : Colors.black.withValues(alpha: 0.05),
-                              blurRadius: isSelected ? 12 : 4,
-                              offset: Offset(0, isSelected ? 4 : 2),
+                                  ? primaryColor.withValues(alpha: 0.15)
+                                  : Colors.grey[100],
+                              shape: BoxShape.circle,
                             ),
-                          ],
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: 64,
-                              height: 64,
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? primaryColor.withValues(alpha: 0.15)
-                                    : Colors.grey[100],
-                                shape: BoxShape.circle,
-                              ),
-                              child: Center(
-                                child: Text(
-                                  emoji,
-                                  style: TextStyle(
-                                    fontSize: isSelected ? 36 : 32,
-                                  ),
-                                ),
+                            child: Center(
+                              child: SvgPicture.asset(
+                                iconPath,
+                                width: 36,
+                                height: 36,
+                                fit: BoxFit.contain,
                               ),
                             ),
-                            const SizedBox(height: 12),
-                            Text(
-                              category,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: isSelected
-                                    ? FontWeight.w700
-                                    : FontWeight.w500,
-                                color: isSelected
-                                    ? primaryColor.shade700
-                                    : Colors.grey[800],
-                              ),
-                              textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            category,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: isSelected
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                              color: isSelected
+                                  ? primaryColor.shade700
+                                  : Colors.grey[800],
                             ),
-                            if (isSelected)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 4),
-                                child: Icon(
-                                  Icons.check_circle,
-                                  size: 16,
-                                  color: primaryColor,
-                                ),
+                            textAlign: TextAlign.center,
+                          ),
+                          if (isSelected)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Icon(
+                                Icons.check_circle,
+                                size: 16,
+                                color: primaryColor,
                               ),
-                          ],
-                        ),
+                            ),
+                        ],
                       ),
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

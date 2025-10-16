@@ -449,30 +449,24 @@ class _HomePageState extends State<HomePage>
                     const TransactionPage(),
                 transitionsBuilder:
                     (context, animation, secondaryAnimation, child) {
-                      const begin = Offset(0.0, 1.0);
-                      const end = Offset.zero;
-                      const curve = Curves.easeInOutCubic;
-
-                      var tween = Tween(
-                        begin: begin,
-                        end: end,
-                      ).chain(CurveTween(curve: curve));
-                      var offsetAnimation = animation.drive(tween);
+                      var scaleAnimation = Tween<double>(begin: 0.8, end: 1.0)
+                          .chain(CurveTween(curve: Curves.easeOutBack))
+                          .animate(animation);
 
                       var fadeAnimation = Tween<double>(begin: 0.0, end: 1.0)
                           .chain(CurveTween(curve: Curves.easeIn))
                           .animate(animation);
 
-                      return SlideTransition(
-                        position: offsetAnimation,
+                      return ScaleTransition(
+                        scale: scaleAnimation,
                         child: FadeTransition(
                           opacity: fadeAnimation,
                           child: child,
                         ),
                       );
                     },
-                transitionDuration: const Duration(milliseconds: 400),
-                reverseTransitionDuration: const Duration(milliseconds: 350),
+                transitionDuration: const Duration(milliseconds: 500),
+                reverseTransitionDuration: const Duration(milliseconds: 400),
               ),
             );
             if (result is Map<String, dynamic>) {

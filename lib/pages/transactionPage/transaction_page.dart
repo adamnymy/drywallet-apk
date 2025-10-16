@@ -152,59 +152,48 @@ class _TransactionPageState extends State<TransactionPage>
                       },
                       child: InkWell(
                         onTap: () async {
-                          final result = await Navigator.of(context).push(
-                            PageRouteBuilder(
-                              pageBuilder:
-                                  (context, animation, secondaryAnimation) =>
-                                      CategoriesPage(
-                                        currentCategory: _selectedCategory,
-                                        categoryEmojis: _categoryEmojis,
-                                        transactionType: _type,
+                          final result = await showModalBottomSheet<String>(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (context) {
+                              return DraggableScrollableSheet(
+                                initialChildSize:
+                                    0.7, // Start at 70% of the screen height
+                                minChildSize:
+                                    0.3, // Allow shrinking to 30% of the screen height
+                                maxChildSize:
+                                    1.0, // Allow expanding to fullscreen
+                                builder: (context, scrollController) {
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(24),
+                                        topRight: Radius.circular(24),
                                       ),
-                              transitionsBuilder:
-                                  (
-                                    context,
-                                    animation,
-                                    secondaryAnimation,
-                                    child,
-                                  ) {
-                                    const begin = Offset(1.0, 0.0);
-                                    const end = Offset.zero;
-                                    const curve = Curves.easeInOutCubic;
-
-                                    var tween = Tween(
-                                      begin: begin,
-                                      end: end,
-                                    ).chain(CurveTween(curve: curve));
-                                    var offsetAnimation = animation.drive(
-                                      tween,
-                                    );
-
-                                    var fadeAnimation =
-                                        Tween<double>(begin: 0.7, end: 1.0)
-                                            .chain(
-                                              CurveTween(curve: Curves.easeIn),
-                                            )
-                                            .animate(animation);
-
-                                    return SlideTransition(
-                                      position: offsetAnimation,
-                                      child: FadeTransition(
-                                        opacity: fadeAnimation,
-                                        child: child,
-                                      ),
-                                    );
-                                  },
-                              transitionDuration: const Duration(
-                                milliseconds: 350,
-                              ),
-                              reverseTransitionDuration: const Duration(
-                                milliseconds: 300,
-                              ),
-                            ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.1),
+                                          blurRadius: 10,
+                                          offset: const Offset(0, -4),
+                                        ),
+                                      ],
+                                    ),
+                                    child: CategoriesPage(
+                                      currentCategory: _selectedCategory,
+                                      categoryEmojis: _categoryEmojis,
+                                      transactionType: _type,
+                                    ),
+                                  );
+                                },
+                              );
+                            },
                           );
-                          if (result != null && result is String) {
-                            setState(() => _selectedCategory = result);
+                          if (result != null) {
+                            setState(() {
+                              _selectedCategory = result;
+                            });
                           }
                         },
                         borderRadius: BorderRadius.circular(50),
