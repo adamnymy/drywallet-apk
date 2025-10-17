@@ -147,8 +147,7 @@ class _HomePageState extends State<HomePage>
     // use totals for header delta
     final monthDelta = _totalIncome - _totalExpense;
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
+      backgroundColor: Colors.grey[50],
       bottomNavigationBar: BottomNavBar(
         currentIndex: _selectedIndex,
         onTap: (i) => setState(() => _selectedIndex = i),
@@ -162,84 +161,289 @@ class _HomePageState extends State<HomePage>
               child: SlideTransition(
                 position: _slideAnimation,
                 child: Container(
-                  width: double.infinity,
+                  margin: const EdgeInsets.fromLTRB(20, 60, 20, 20),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Color.fromARGB(255, 76, 188, 121),
-                        Color.fromARGB(255, 156, 154, 221),
+                        Color(0xFF10B981), // Soft green
+                        Color(0xFF059669), // Darker green
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(24),
-                      bottomRight: Radius.circular(24),
-                    ),
+                    borderRadius: BorderRadius.circular(28),
                     boxShadow: [
                       BoxShadow(
-                        color: Color.fromARGB(
-                          255,
-                          76,
-                          188,
-                          121,
-                        ).withValues(alpha: 0.3),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
+                        color: Color(0xFF10B981).withValues(alpha: 0.4),
+                        blurRadius: 24,
+                        offset: const Offset(0, 12),
+                        spreadRadius: -4,
                       ),
                     ],
                   ),
-                  padding: const EdgeInsets.fromLTRB(20, 90, 20, 32),
-                  child: Column(
+                  child: Stack(
                     children: [
-                      const SizedBox(height: 4),
-                      const Text(
-                        'Total Balance',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      TweenAnimationBuilder<double>(
-                        duration: const Duration(milliseconds: 800),
-                        curve: Curves.easeOutCubic,
-                        tween: Tween(begin: 0, end: _balance),
-                        builder: (context, value, child) {
-                          return Text(
-                            NumberFormat.simpleCurrency().format(value),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 38,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: -1,
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: monthDelta >= 0
-                              ? Colors.greenAccent.withValues(alpha: 0.2)
-                              : Colors.redAccent.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          '${monthDelta >= 0 ? '↑' : '↓'} ${NumberFormat.simpleCurrency().format(monthDelta.abs())} this month',
-                          style: TextStyle(
-                            color: monthDelta >= 0
-                                ? Colors.greenAccent
-                                : Colors.redAccent,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
+                      // Decorative circles
+                      Positioned(
+                        top: -30,
+                        right: -30,
+                        child: Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white.withValues(alpha: 0.08),
                           ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: -20,
+                        left: -20,
+                        child: Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white.withValues(alpha: 0.06),
+                          ),
+                        ),
+                      ),
+                      // Content
+                      Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withValues(
+                                              alpha: 0.2,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          child: Icon(
+                                            Icons
+                                                .account_balance_wallet_rounded,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Text(
+                                          'Total Balance',
+                                          style: TextStyle(
+                                            color: Colors.white.withValues(
+                                              alpha: 0.9,
+                                            ),
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 16),
+                                    TweenAnimationBuilder<double>(
+                                      duration: const Duration(
+                                        milliseconds: 800,
+                                      ),
+                                      curve: Curves.easeOutCubic,
+                                      tween: Tween(begin: 0, end: _balance),
+                                      builder: (context, value, child) {
+                                        return Text(
+                                          NumberFormat.simpleCurrency().format(
+                                            value,
+                                          ),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 42,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: -1.5,
+                                            height: 1.2,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    const SizedBox(height: 8),
+                                    AnimatedContainer(
+                                      duration: const Duration(
+                                        milliseconds: 300,
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: monthDelta >= 0
+                                            ? Colors.white.withValues(
+                                                alpha: 0.25,
+                                              )
+                                            : Colors.red.shade400.withValues(
+                                                alpha: 0.3,
+                                              ),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            monthDelta >= 0
+                                                ? Icons.trending_up_rounded
+                                                : Icons.trending_down_rounded,
+                                            color: Colors.white,
+                                            size: 16,
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            '${NumberFormat.simpleCurrency().format(monthDelta.abs())} this month',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 24),
+                            // Income and Expense Row
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(
+                                        alpha: 0.15,
+                                      ),
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.all(6),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white.withValues(
+                                                  alpha: 0.2,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              child: Icon(
+                                                Icons.arrow_downward_rounded,
+                                                color: Colors.white,
+                                                size: 14,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              'Income',
+                                              style: TextStyle(
+                                                color: Colors.white.withValues(
+                                                  alpha: 0.85,
+                                                ),
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          NumberFormat.simpleCurrency().format(
+                                            _totalIncome,
+                                          ),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(
+                                        alpha: 0.15,
+                                      ),
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.all(6),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white.withValues(
+                                                  alpha: 0.2,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              child: Icon(
+                                                Icons.arrow_upward_rounded,
+                                                color: Colors.white,
+                                                size: 14,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              'Expense',
+                                              style: TextStyle(
+                                                color: Colors.white.withValues(
+                                                  alpha: 0.85,
+                                                ),
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          NumberFormat.simpleCurrency().format(
+                                            _totalExpense,
+                                          ),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                     ],
