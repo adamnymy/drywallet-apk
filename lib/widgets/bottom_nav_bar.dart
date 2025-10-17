@@ -139,47 +139,22 @@ class _NavBarItemState extends State<_NavBarItem>
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               color: widget.isSelected
                   ? primaryColor.withValues(alpha: 0.1)
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ScaleTransition(
-                  scale: widget.isSelected
-                      ? _iconScaleAnimation
-                      : const AlwaysStoppedAnimation(1.0),
-                  child: Icon(
-                    widget.icon,
-                    color: widget.isSelected ? primaryColor : Colors.grey[600],
-                    size: 24,
-                  ),
-                ),
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                  width: widget.isSelected ? 6 : 0,
-                ),
-                AnimatedSize(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                  child: widget.isSelected
-                      ? Text(
-                          widget.label,
-                          style: TextStyle(
-                            color: primaryColor,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
-                          ),
-                        )
-                      : const SizedBox.shrink(),
-                ),
-              ],
+            child: ScaleTransition(
+              scale: widget.isSelected
+                  ? _iconScaleAnimation
+                  : const AlwaysStoppedAnimation(1.0),
+              child: Icon(
+                widget.icon,
+                color: widget.isSelected ? primaryColor : Colors.grey[600],
+                size: 26,
+              ),
             ),
           ),
         ),
