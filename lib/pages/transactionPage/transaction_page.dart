@@ -258,7 +258,7 @@ class _TransactionPageState extends State<TransactionPage>
             icon: const Icon(Icons.check),
             label: const Text('Save'),
             style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFF7C3AED),
+              foregroundColor: const Color(0xFF10B981), // Soft green
             ),
           ),
           const SizedBox(width: 8),

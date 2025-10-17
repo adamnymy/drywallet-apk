@@ -11,7 +11,7 @@ class CustomKeyboard extends StatelessWidget {
     required this.onKeyTap,
     required this.onBackspace,
     required this.onClear,
-    this.primaryColor = const Color(0xFF7C3AED),
+    this.primaryColor = const Color(0xFF10B981), // Soft green
   });
 
   @override

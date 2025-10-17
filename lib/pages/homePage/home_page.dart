@@ -283,7 +283,7 @@ class _HomePageState extends State<HomePage>
                               ),
                               decoration: BoxDecoration(
                                 color: const Color(
-                                  0xFF7C3AED,
+                                  0xFF10B981, // Soft green
                                 ).withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -292,7 +292,7 @@ class _HomePageState extends State<HomePage>
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
-                                  color: const Color(0xFF7C3AED),
+                                  color: const Color(0xFF10B981), // Soft green
                                 ),
                               ),
                             ),
@@ -419,8 +419,8 @@ class _HomePageState extends State<HomePage>
                                         isCurved: true,
                                         gradient: const LinearGradient(
                                           colors: [
-                                            Color(0xFF7C3AED),
-                                            Color(0xFFEC4899),
+                                            Color(0xFF10B981), // Soft green
+                                            Color(0xFF34D399), // Light green
                                           ],
                                         ),
                                         barWidth: 3,
@@ -434,7 +434,7 @@ class _HomePageState extends State<HomePage>
                                                   color: Colors.white,
                                                   strokeWidth: 3,
                                                   strokeColor: const Color(
-                                                    0xFF7C3AED,
+                                                    0xFF10B981, // Soft green
                                                   ),
                                                 );
                                               },
@@ -444,10 +444,10 @@ class _HomePageState extends State<HomePage>
                                           gradient: LinearGradient(
                                             colors: [
                                               const Color(
-                                                0xFF7C3AED,
+                                                0xFF10B981, // Soft green
                                               ).withValues(alpha: 0.3),
                                               const Color(
-                                                0xFFEC4899,
+                                                0xFF34D399, // Light green
                                               ).withValues(alpha: 0.1),
                                             ],
                                             begin: Alignment.topCenter,
