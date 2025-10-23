@@ -3,6 +3,9 @@ import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../transactionPage/transaction_page.dart';
+import '../statsPage/stats_page.dart';
+import '../cardsPage/cards_page.dart';
+import '../profilePage/profile_page.dart';
 import '../../widgets/bottom_nav_bar.dart';
 
 enum TxType { income, expense }
@@ -36,7 +39,7 @@ class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   // Start with no transactions — user will add real data via the TransactionPage
   final List<TransactionItem> _transactions = [];
-  int _selectedIndex = 0;
+  final int _selectedIndex = 0;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -142,6 +145,19 @@ class _HomePageState extends State<HomePage>
 
   // (Removed) 7-day summary calculation — not used in the current layout.
 
+  Widget _getPageForIndex(int index) {
+    switch (index) {
+      case 1:
+        return const StatsPage();
+      case 2:
+        return const CardsPage();
+      case 3:
+        return const ProfilePage();
+      default:
+        return const HomePage();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // final summary = _sevenDaySummary; // not used in this layout
@@ -151,7 +167,19 @@ class _HomePageState extends State<HomePage>
       backgroundColor: const Color(0xFFF0EFF4), // Ghost White background
       bottomNavigationBar: BottomNavBar(
         currentIndex: _selectedIndex,
-        onTap: (i) => setState(() => _selectedIndex = i),
+        onTap: (index) {
+          if (index != _selectedIndex) {
+            Navigator.pushReplacement(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    _getPageForIndex(index),
+                transitionDuration: Duration.zero,
+                reverseTransitionDuration: Duration.zero,
+              ),
+            );
+          }
+        },
       ),
       body: SingleChildScrollView(
         child: Column(

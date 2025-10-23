@@ -26,7 +26,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 100,
+      height: 80,
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -51,7 +51,11 @@ class _BottomNavBarState extends State<BottomNavBar> {
                   icon: item.icon,
                   label: item.label,
                   isSelected: isSelected,
-                  onTap: () => widget.onTap(index),
+                  onTap: () {
+                    if (index != widget.currentIndex) {
+                      widget.onTap(index);
+                    }
+                  },
                 ),
               );
             }),
