@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../transactionPage/transaction_page.dart';
 import '../../widgets/bottom_nav_bar.dart';
 
@@ -147,7 +148,7 @@ class _HomePageState extends State<HomePage>
     // use totals for header delta
     final monthDelta = _totalIncome - _totalExpense;
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: const Color(0xFFF9F9ED), // Cream background
       bottomNavigationBar: BottomNavBar(
         currentIndex: _selectedIndex,
         onTap: (i) => setState(() => _selectedIndex = i),
@@ -165,8 +166,8 @@ class _HomePageState extends State<HomePage>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Color(0xFF10B981), // Soft green
-                        Color(0xFF059669), // Darker green
+                        Color(0xFF7D84B2), // Blue-grey
+                        Color(0xFF8E9DCC), // Periwinkle
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -174,7 +175,7 @@ class _HomePageState extends State<HomePage>
                     borderRadius: BorderRadius.circular(28),
                     boxShadow: [
                       BoxShadow(
-                        color: Color(0xFF10B981).withValues(alpha: 0.4),
+                        color: Color(0xFF7D84B2).withValues(alpha: 0.4),
                         blurRadius: 24,
                         offset: const Offset(0, 12),
                         spreadRadius: -4,
@@ -242,7 +243,7 @@ class _HomePageState extends State<HomePage>
                                         const SizedBox(width: 10),
                                         Text(
                                           'Total Balance',
-                                          style: TextStyle(
+                                          style: GoogleFonts.poppins(
                                             color: Colors.white.withValues(
                                               alpha: 0.9,
                                             ),
@@ -487,8 +488,8 @@ class _HomePageState extends State<HomePage>
                               ),
                               decoration: BoxDecoration(
                                 color: const Color(
-                                  0xFF10B981, // Soft green
-                                ).withValues(alpha: 0.1),
+                                  0xFFDBF4A7, // Light lime
+                                ).withValues(alpha: 0.3),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
@@ -496,7 +497,7 @@ class _HomePageState extends State<HomePage>
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
-                                  color: const Color(0xFF10B981), // Soft green
+                                  color: const Color(0xFF7D84B2), // Blue-grey
                                 ),
                               ),
                             ),
@@ -623,8 +624,8 @@ class _HomePageState extends State<HomePage>
                                         isCurved: true,
                                         gradient: const LinearGradient(
                                           colors: [
-                                            Color(0xFF10B981), // Soft green
-                                            Color(0xFF34D399), // Light green
+                                            Color(0xFF7D84B2), // Blue-grey
+                                            Color(0xFF8E9DCC), // Periwinkle
                                           ],
                                         ),
                                         barWidth: 3,
@@ -638,7 +639,7 @@ class _HomePageState extends State<HomePage>
                                                   color: Colors.white,
                                                   strokeWidth: 3,
                                                   strokeColor: const Color(
-                                                    0xFF10B981, // Soft green
+                                                    0xFF7D84B2, // Blue-grey
                                                   ),
                                                 );
                                               },
@@ -648,10 +649,10 @@ class _HomePageState extends State<HomePage>
                                           gradient: LinearGradient(
                                             colors: [
                                               const Color(
-                                                0xFF10B981, // Soft green
+                                                0xFFDBF4A7, // Light lime
                                               ).withValues(alpha: 0.3),
                                               const Color(
-                                                0xFF34D399, // Light green
+                                                0xFFD9DBF1, // Lavender
                                               ).withValues(alpha: 0.1),
                                             ],
                                             begin: Alignment.topCenter,
@@ -753,11 +754,14 @@ class _HomePageState extends State<HomePage>
                                   onDismissed: (_) => _removeTransaction(tx.id),
                                   child: Card(
                                     elevation: 0,
-                                    color: Colors.grey[100],
+                                    color: Colors.white, // White card
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                       side: BorderSide(
-                                        color: Colors.grey[300]!,
+                                        color: const Color(0xFFD9DBF1)
+                                            .withAlpha(
+                                              (0.5 * 255).toInt(),
+                                            ), // Lavender border
                                         width: 1,
                                       ),
                                     ),

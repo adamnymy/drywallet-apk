@@ -126,7 +126,7 @@ class _NavBarItemState extends State<_NavBarItem>
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = const Color(0xFF10B981); // Soft green
+    final primaryColor = const Color(0xFF7D84B2); // Blue-grey
 
     return GestureDetector(
       onTap: () {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../transaction_page.dart';
 
 class CategoriesPage extends StatefulWidget {
@@ -85,7 +86,7 @@ class _CategoriesPageState extends State<CategoriesPage>
             padding: const EdgeInsets.all(20.0),
             child: Text(
               'Choose a category for your ${widget.transactionType == TxTypeForm.expense ? 'expense' : 'income'}',
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
           ),
@@ -133,12 +134,14 @@ class _CategoriesPageState extends State<CategoriesPage>
                       decoration: BoxDecoration(
                         color: isSelected
                             ? primaryColor.withValues(alpha: 0.1)
-                            : Colors.grey[100],
+                            : Colors.white, // White card
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: isSelected
                               ? primaryColor
-                              : Colors.grey.shade300,
+                              : const Color(0xFFD9DBF1).withAlpha(
+                                  (0.5 * 255).toInt(),
+                                ), // Lavender border
                           width: isSelected ? 2 : 1,
                         ),
                         boxShadow: [
@@ -160,7 +163,7 @@ class _CategoriesPageState extends State<CategoriesPage>
                             decoration: BoxDecoration(
                               color: isSelected
                                   ? primaryColor.withValues(alpha: 0.15)
-                                  : Colors.grey[100],
+                                  : const Color(0xFFF9F9ED), // Cream background
                               shape: BoxShape.circle,
                             ),
                             child: Center(

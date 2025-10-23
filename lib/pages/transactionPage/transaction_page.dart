@@ -240,7 +240,7 @@ class _TransactionPageState extends State<TransactionPage>
     final dateFormat = DateFormat('MMM dd, yyyy');
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: const Color(0xFFF9F9ED), // Cream background
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -258,7 +258,7 @@ class _TransactionPageState extends State<TransactionPage>
             icon: const Icon(Icons.check),
             label: const Text('Save'),
             style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFF10B981), // Soft green
+              foregroundColor: const Color(0xFF7D84B2), // Blue-grey
             ),
           ),
           const SizedBox(width: 8),
@@ -386,8 +386,12 @@ class _TransactionPageState extends State<TransactionPage>
                                               const Color(0xFFDC2626),
                                             ]
                                           : [
-                                              const Color(0xFF10B981),
-                                              const Color(0xFF059669),
+                                              const Color(
+                                                0xFFDBF4A7,
+                                              ), // Light lime
+                                              const Color(
+                                                0xFF8E9DCC,
+                                              ), // Periwinkle
                                             ],
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
@@ -435,7 +439,9 @@ class _TransactionPageState extends State<TransactionPage>
                                             size: 16,
                                             color: _type == TxTypeForm.expense
                                                 ? const Color(0xFFEF4444)
-                                                : const Color(0xFF10B981),
+                                                : const Color(
+                                                    0xFF7D84B2,
+                                                  ), // Blue-grey
                                           ),
                                         ),
                                       ),
@@ -504,11 +510,13 @@ class _TransactionPageState extends State<TransactionPage>
                         },
                         child: Card(
                           elevation: 0,
-                          color: Colors.grey[100],
+                          color: Colors.white, // White card
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                             side: BorderSide(
-                              color: Colors.grey[300]!,
+                              color: const Color(0xFFD9DBF1).withAlpha(
+                                (0.5 * 255).toInt(),
+                              ), // Lavender border
                               width: 1,
                             ),
                           ),
@@ -557,7 +565,9 @@ class _TransactionPageState extends State<TransactionPage>
                                           fontWeight: FontWeight.bold,
                                           color: _type == TxTypeForm.expense
                                               ? const Color(0xFFEF4444)
-                                              : const Color(0xFF10B981),
+                                              : const Color(
+                                                  0xFF7D84B2,
+                                                ), // Blue-grey
                                         ),
                                       ),
                                     ),
@@ -575,11 +585,13 @@ class _TransactionPageState extends State<TransactionPage>
                         onTap: _hideCustomKeyboard,
                         child: Card(
                           elevation: 0,
-                          color: Colors.grey[100],
+                          color: Colors.white, // White card
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                             side: BorderSide(
-                              color: Colors.grey[300]!,
+                              color: const Color(0xFFD9DBF1).withAlpha(
+                                (0.5 * 255).toInt(),
+                              ), // Lavender border
                               width: 1,
                             ),
                           ),
@@ -608,10 +620,15 @@ class _TransactionPageState extends State<TransactionPage>
                       // Date and Time selector
                       Card(
                         elevation: 0,
-                        color: Colors.grey[100],
+                        color: Colors.white, // White card
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
-                          side: BorderSide(color: Colors.grey[300]!, width: 1),
+                          side: BorderSide(
+                            color: const Color(
+                              0xFFD9DBF1,
+                            ).withAlpha((0.5 * 255).toInt()), // Lavender border
+                            width: 1,
+                          ),
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
@@ -650,7 +667,9 @@ class _TransactionPageState extends State<TransactionPage>
                                           vertical: 12,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: Colors.grey[100],
+                                          color: const Color(
+                                            0xFFF9F9ED,
+                                          ), // Cream background
                                           borderRadius: BorderRadius.circular(
                                             12,
                                           ),
@@ -687,7 +706,9 @@ class _TransactionPageState extends State<TransactionPage>
                                           vertical: 12,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: Colors.grey[100],
+                                          color: const Color(
+                                            0xFFF9F9ED,
+                                          ), // Cream background
                                           borderRadius: BorderRadius.circular(
                                             12,
                                           ),
@@ -726,11 +747,13 @@ class _TransactionPageState extends State<TransactionPage>
                         onTap: _hideCustomKeyboard,
                         child: Card(
                           elevation: 0,
-                          color: Colors.grey[100],
+                          color: Colors.white, // White card
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                             side: BorderSide(
-                              color: Colors.grey[300]!,
+                              color: const Color(0xFFD9DBF1).withAlpha(
+                                (0.5 * 255).toInt(),
+                              ), // Lavender border
                               width: 1,
                             ),
                           ),

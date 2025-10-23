@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class CustomKeyboard extends StatelessWidget {
   final Function(String) onKeyTap;
@@ -11,7 +12,7 @@ class CustomKeyboard extends StatelessWidget {
     required this.onKeyTap,
     required this.onBackspace,
     required this.onClear,
-    this.primaryColor = const Color(0xFF10B981), // Soft green
+    this.primaryColor = const Color(0xFF7D84B2), // Blue-grey
   });
 
   @override
@@ -89,7 +90,7 @@ class CustomKeyboard extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 value,
-                style: TextStyle(
+                style: GoogleFonts.poppins(
                   fontSize: 24,
                   fontWeight: FontWeight.w600,
                   color: Colors.grey[800],
