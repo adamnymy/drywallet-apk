@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'categoriesPage/categories_page.dart';
 import '../../widgets/custom_keyboard.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../../theme/colors.dart';
 
 enum TxTypeForm { income, expense }
 
@@ -28,7 +30,6 @@ class _TransactionPageState extends State<TransactionPage>
   bool _showKeyboard = false;
 
   late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
   late AnimationController _keyboardAnimationController;
   late Animation<Offset> _keyboardSlideAnimation;
 
@@ -52,10 +53,6 @@ class _TransactionPageState extends State<TransactionPage>
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
-    );
-    _fadeAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.3, 1.0, curve: Curves.easeInOut),
     );
 
     // Keyboard slide animation
@@ -236,611 +233,333 @@ class _TransactionPageState extends State<TransactionPage>
 
   @override
   Widget build(BuildContext context) {
-    final selectedEmoji = _categoryEmojis[_selectedCategory] ?? '📌';
-    final dateFormat = DateFormat('MMM dd, yyyy');
-
     return Scaffold(
       backgroundColor: const Color(0xFFF0EFF4), // Ghost White background
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: const Icon(Icons.close, color: Colors.black87),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           'New Transaction',
-          style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black),
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+            fontSize: 20,
+          ),
         ),
         actions: [
-          TextButton.icon(
+          TextButton(
             onPressed: _submit,
-            icon: const Icon(Icons.check),
-            label: const Text('Save'),
             style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFF7D84B2), // Blue-grey
+              foregroundColor: primaryColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(
+              'Save',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+              ),
             ),
           ),
           const SizedBox(width: 8),
         ],
       ),
-      body: GestureDetector(
-        onTap: _hideCustomKeyboard,
-        child: Column(
-          children: [
-            Expanded(
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Hero animated emoji circle - tappable to open category selector
-                      Hero(
-                        tag: 'add_tx_fab',
-                        flightShuttleBuilder:
-                            (
-                              flightContext,
-                              animation,
-                              flightDirection,
-                              fromHeroContext,
-                              toHeroContext,
-                            ) {
-                              final isForward =
-                                  flightDirection == HeroFlightDirection.push;
-                              final Hero toHero = toHeroContext.widget as Hero;
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 24),
+                  // Amount and Type Selector
+                  _buildAmountSection(),
+                  const SizedBox(height: 32),
 
-                              return ScaleTransition(
-                                scale:
-                                    Tween<double>(
-                                      begin: isForward ? 0.8 : 1.0,
-                                      end: isForward ? 1.0 : 0.8,
-                                    ).animate(
-                                      CurvedAnimation(
-                                        parent: animation,
-                                        curve: Curves.easeInOutCubic,
-                                      ),
-                                    ),
-                                child: FadeTransition(
-                                  opacity: animation,
-                                  child: toHero.child,
-                                ),
-                              );
-                            },
-                        child: Material(
-                          color: Colors.transparent,
-                          child: Center(
-                            child: TweenAnimationBuilder<double>(
-                              duration: const Duration(milliseconds: 500),
-                              curve: Curves.easeOutBack,
-                              tween: Tween(begin: 0.0, end: 1.0),
-                              builder: (context, value, child) {
-                                return Transform.scale(
-                                  scale: value,
-                                  child: child,
-                                );
-                              },
-                              child: InkWell(
-                                onTap: () async {
-                                  final result = await showModalBottomSheet<String>(
-                                    context: context,
-                                    isScrollControlled: true,
-                                    backgroundColor: Colors.transparent,
-                                    builder: (context) {
-                                      return DraggableScrollableSheet(
-                                        initialChildSize:
-                                            0.7, // Start at 70% of the screen height
-                                        minChildSize:
-                                            0.3, // Allow shrinking to 30% of the screen height
-                                        maxChildSize:
-                                            1.0, // Allow expanding to fullscreen
-                                        builder: (context, scrollController) {
-                                          return Container(
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius:
-                                                  const BorderRadius.only(
-                                                    topLeft: Radius.circular(
-                                                      24,
-                                                    ),
-                                                    topRight: Radius.circular(
-                                                      24,
-                                                    ),
-                                                  ),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black
-                                                      .withOpacity(0.1),
-                                                  blurRadius: 10,
-                                                  offset: const Offset(0, -4),
-                                                ),
-                                              ],
-                                            ),
-                                            child: CategoriesPage(
-                                              currentCategory:
-                                                  _selectedCategory,
-                                              categoryEmojis: _categoryEmojis,
-                                              transactionType: _type,
-                                            ),
-                                          );
-                                        },
-                                      );
-                                    },
-                                  );
-                                  if (result != null) {
-                                    setState(() {
-                                      _selectedCategory = result;
-                                    });
-                                  }
-                                },
-                                borderRadius: BorderRadius.circular(50),
-                                child: Container(
-                                  width: 100,
-                                  height: 100,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: _type == TxTypeForm.expense
-                                          ? [
-                                              const Color(0xFFEF4444),
-                                              const Color(0xFFDC2626),
-                                            ]
-                                          : [
-                                              const Color(
-                                                0xFFDBF4A7,
-                                              ), // Light lime
-                                              const Color(
-                                                0xFF8E9DCC,
-                                              ), // Periwinkle
-                                            ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                    shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color:
-                                            (_type == TxTypeForm.expense
-                                                    ? const Color(0xFFEF4444)
-                                                    : const Color(0xFF10B981))
-                                                .withValues(alpha: 0.3),
-                                        blurRadius: 20,
-                                        offset: const Offset(0, 10),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Stack(
-                                    children: [
-                                      Center(
-                                        child: Text(
-                                          selectedEmoji,
-                                          style: const TextStyle(fontSize: 48),
-                                        ),
-                                      ),
-                                      Positioned(
-                                        bottom: 8,
-                                        right: 8,
-                                        child: Container(
-                                          padding: const EdgeInsets.all(4),
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            shape: BoxShape.circle,
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black.withValues(
-                                                  alpha: 0.1,
-                                                ),
-                                                blurRadius: 4,
-                                              ),
-                                            ],
-                                          ),
-                                          child: Icon(
-                                            Icons.edit,
-                                            size: 16,
-                                            color: _type == TxTypeForm.expense
-                                                ? const Color(0xFFEF4444)
-                                                : const Color(
-                                                    0xFF7D84B2,
-                                                  ), // Blue-grey
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      // Category label
-                      Center(
-                        child: Text(
-                          _selectedCategory,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 32),
+                  // Form Fields
+                  _buildFormFields(),
+                  const SizedBox(height: 24),
 
-                      // Type selector chips with staggered animation
-                      TweenAnimationBuilder<double>(
-                        duration: const Duration(milliseconds: 600),
-                        curve: Curves.easeOutCubic,
-                        tween: Tween(begin: 0.0, end: 1.0),
-                        builder: (context, value, child) {
-                          return Opacity(
-                            opacity: value,
-                            child: Transform.translate(
-                              offset: Offset(0, 20 * (1 - value)),
-                              child: child,
-                            ),
-                          );
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _buildTypeChip(
-                              'Expense',
-                              TxTypeForm.expense,
-                              Icons.arrow_downward,
-                              Colors.red,
-                            ),
-                            const SizedBox(width: 12),
-                            _buildTypeChip(
-                              'Income',
-                              TxTypeForm.income,
-                              Icons.arrow_upward,
-                              Colors.green,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
+                  // Submit Button
+                  _buildSubmitButton(),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+          ),
+          // Custom Keyboard
+          if (_showKeyboard)
+            SlideTransition(
+              position: _keyboardSlideAnimation,
+              child: CustomKeyboard(
+                onKeyTap: _handleKeyTap,
+                onBackspace: _handleBackspace,
+                onClear: _handleClear,
+                primaryColor: _type == TxTypeForm.expense
+                    ? expenseColor
+                    : incomeColor,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 
-                      // Amount input card
-                      GestureDetector(
-                        onTap: () {
-                          _showCustomKeyboard();
-                          _amountFocusNode.requestFocus();
-                        },
-                        child: Card(
-                          elevation: 0,
-                          color: Colors.white, // White card
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            side: BorderSide(
-                              color: const Color(0xFFD9DBF1).withAlpha(
-                                (0.5 * 255).toInt(),
-                              ), // Lavender border
-                              width: 1,
-                            ),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.attach_money,
-                                      size: 16,
-                                      color: Colors.grey[600],
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      'Amount',
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    Text(
-                                      '\$ ',
-                                      style: TextStyle(
-                                        fontSize: 40,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.grey[400],
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Text(
-                                        _amountDisplay == '0'
-                                            ? '0.00'
-                                            : _amountDisplay,
-                                        style: TextStyle(
-                                          fontSize: 40,
-                                          fontWeight: FontWeight.bold,
-                                          color: _type == TxTypeForm.expense
-                                              ? const Color(0xFFEF4444)
-                                              : const Color(
-                                                  0xFF7D84B2,
-                                                ), // Blue-grey
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Title input card
-                      GestureDetector(
-                        onTap: _hideCustomKeyboard,
-                        child: Card(
-                          elevation: 0,
-                          color: Colors.white, // White card
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            side: BorderSide(
-                              color: const Color(0xFFD9DBF1).withAlpha(
-                                (0.5 * 255).toInt(),
-                              ), // Lavender border
-                              width: 1,
-                            ),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0,
-                              vertical: 8,
-                            ),
-                            child: TextField(
-                              controller: _titleController,
-                              textCapitalization: TextCapitalization.sentences,
-                              onTap: _hideCustomKeyboard,
-                              decoration: InputDecoration(
-                                labelText: 'Title',
-                                hintText: 'e.g., Lunch at restaurant',
-                                prefixIcon: const Icon(Icons.title),
-                                border: InputBorder.none,
-                                labelStyle: TextStyle(color: Colors.grey[600]),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Date and Time selector
-                      Card(
-                        elevation: 0,
-                        color: Colors.white, // White card
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          side: BorderSide(
-                            color: const Color(
-                              0xFFD9DBF1,
-                            ).withAlpha((0.5 * 255).toInt()), // Lavender border
-                            width: 1,
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.calendar_today,
-                                    size: 16,
-                                    color: Colors.grey[600],
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'Date & Time',
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: InkWell(
-                                      onTap: _selectDate,
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 12,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: const Color(
-                                            0xFFF9F9ED,
-                                          ), // Cream background
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.event,
-                                              size: 18,
-                                              color: Colors.grey[700],
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Text(
-                                              dateFormat.format(_selectedDate),
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                                color: Colors.grey[800],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: InkWell(
-                                      onTap: _selectTime,
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 12,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: const Color(
-                                            0xFFF9F9ED,
-                                          ), // Cream background
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.access_time,
-                                              size: 18,
-                                              color: Colors.grey[700],
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Text(
-                                              _selectedTime.format(context),
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                                color: Colors.grey[800],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Notes input card
-                      GestureDetector(
-                        onTap: _hideCustomKeyboard,
-                        child: Card(
-                          elevation: 0,
-                          color: Colors.white, // White card
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            side: BorderSide(
-                              color: const Color(0xFFD9DBF1).withAlpha(
-                                (0.5 * 255).toInt(),
-                              ), // Lavender border
-                              width: 1,
-                            ),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0,
-                              vertical: 8,
-                            ),
-                            child: TextField(
-                              controller: _notesController,
-                              maxLines: 3,
-                              textCapitalization: TextCapitalization.sentences,
-                              onTap: _hideCustomKeyboard,
-                              decoration: InputDecoration(
-                                labelText: 'Notes (Optional)',
-                                hintText: 'Add any additional details...',
-                                prefixIcon: const Padding(
-                                  padding: EdgeInsets.only(bottom: 40),
-                                  child: Icon(Icons.notes),
-                                ),
-                                border: InputBorder.none,
-                                labelStyle: TextStyle(color: Colors.grey[600]),
-                                hintStyle: TextStyle(color: Colors.grey[400]),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Submit button
-                      SizedBox(
-                        height: 56,
-                        child: ElevatedButton(
-                          onPressed: _submit,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _type == TxTypeForm.expense
-                                ? const Color(0xFFEF4444)
-                                : const Color(0xFF10B981),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            elevation: 4,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.check_circle_outline),
-                              const SizedBox(width: 8),
-                              Text(
-                                _type == TxTypeForm.expense
-                                    ? 'Add Expense'
-                                    : 'Add Income',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                    ],
+  Widget _buildAmountSection() {
+    return Column(
+      children: [
+        // Category Selector
+        GestureDetector(
+          onTap: _showCategoryPicker,
+          child: Column(
+            children: [
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: secondaryColor.withOpacity(0.5),
+                ),
+                child: Center(
+                  child: Text(
+                    _categoryEmojis[_selectedCategory] ?? '📌',
+                    style: const TextStyle(fontSize: 40),
                   ),
                 ),
               ),
-            ),
-            // Custom Keyboard with slide animation
-            if (_showKeyboard)
-              SlideTransition(
-                position: _keyboardSlideAnimation,
-                child: CustomKeyboard(
-                  onKeyTap: _handleKeyTap,
-                  onBackspace: _handleBackspace,
-                  onClear: _handleClear,
-                  primaryColor: _type == TxTypeForm.expense
-                      ? const Color(0xFFEF4444)
-                      : const Color(0xFF10B981),
+              const SizedBox(height: 8),
+              Text(
+                _selectedCategory,
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[700],
                 ),
               ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+        // Amount Display
+        GestureDetector(
+          onTap: _showCustomKeyboard,
+          child: Text(
+            '${_type == TxTypeForm.expense ? '-' : '+'} \$${_amountDisplay == '0' ? '0.00' : _amountDisplay}',
+            style: GoogleFonts.poppins(
+              fontSize: 48,
+              fontWeight: FontWeight.bold,
+              color: _type == TxTypeForm.expense ? expenseColor : incomeColor,
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Type Chips
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildTypeChip(
+              'Expense',
+              TxTypeForm.expense,
+              Icons.arrow_downward,
+              expenseColor,
+            ),
+            const SizedBox(width: 12),
+            _buildTypeChip(
+              'Income',
+              TxTypeForm.income,
+              Icons.arrow_upward,
+              incomeColor,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFormFields() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Title
+          TextField(
+            controller: _titleController,
+            textCapitalization: TextCapitalization.sentences,
+            onTap: _hideCustomKeyboard,
+            decoration: InputDecoration(
+              labelText: 'Title',
+              hintText: 'e.g., Lunch at restaurant',
+              prefixIcon: const Icon(Icons.title_rounded),
+              border: InputBorder.none,
+              labelStyle: GoogleFonts.poppins(color: Colors.grey[600]),
+              hintStyle: GoogleFonts.poppins(color: Colors.grey[400]),
+            ),
+          ),
+          const Divider(height: 1),
+          // Date & Time
+          _buildDateTimeRow(),
+          const Divider(height: 1),
+          // Notes
+          TextField(
+            controller: _notesController,
+            maxLines: 3,
+            textCapitalization: TextCapitalization.sentences,
+            onTap: _hideCustomKeyboard,
+            decoration: InputDecoration(
+              labelText: 'Notes (Optional)',
+              hintText: 'Add any additional details...',
+              prefixIcon: const Icon(Icons.notes_rounded),
+              border: InputBorder.none,
+              labelStyle: GoogleFonts.poppins(color: Colors.grey[600]),
+              hintStyle: GoogleFonts.poppins(color: Colors.grey[400]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateTimeRow() {
+    final dateFormat = DateFormat('MMM dd, yyyy');
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: InkWell(
+              onTap: _selectDate,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  children: [
+                    const Icon(Icons.calendar_today_rounded, size: 20),
+                    const SizedBox(width: 12),
+                    Text(
+                      dateFormat.format(_selectedDate),
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: InkWell(
+              onTap: _selectTime,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  children: [
+                    const Icon(Icons.access_time_rounded, size: 20),
+                    const SizedBox(width: 12),
+                    Text(
+                      _selectedTime.format(context),
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return SizedBox(
+      height: 56,
+      child: ElevatedButton(
+        onPressed: _submit,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _type == TxTypeForm.expense
+              ? expenseColor
+              : incomeColor,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 4,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.check_circle_outline),
+            const SizedBox(width: 8),
+            Text(
+              _type == TxTypeForm.expense ? 'Add Expense' : 'Add Income',
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
+              ),
+            ),
           ],
         ),
       ),
     );
+  }
+
+  void _showCategoryPicker() async {
+    final result = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.7,
+          minChildSize: 0.3,
+          maxChildSize: 1.0,
+          builder: (context, scrollController) {
+            return Container(
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  topRight: Radius.circular(24),
+                ),
+              ),
+              child: CategoriesPage(
+                currentCategory: _selectedCategory,
+                categoryEmojis: _categoryEmojis,
+                transactionType: _type,
+              ),
+            );
+          },
+        );
+      },
+    );
+    if (result != null) {
+      setState(() {
+        _selectedCategory = result;
+      });
+    }
   }
 
   Widget _buildTypeChip(
@@ -850,35 +569,26 @@ class _TransactionPageState extends State<TransactionPage>
     Color color,
   ) {
     final isSelected = _type == type;
-    return InkWell(
-      onTap: () => setState(() => _type = type),
-      borderRadius: BorderRadius.circular(20),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.1) : Colors.grey[200],
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? color : Colors.transparent,
-            width: 2,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 18, color: isSelected ? color : Colors.grey[600]),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                color: isSelected ? color : Colors.grey[800],
-              ),
-            ),
-          ],
-        ),
+    return ChoiceChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (selected) {
+        if (selected) {
+          setState(() => _type = type);
+        }
+      },
+      avatar: Icon(icon, size: 18, color: isSelected ? Colors.white : color),
+      labelStyle: GoogleFonts.poppins(
+        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+        color: isSelected ? Colors.white : color,
       ),
+      backgroundColor: color.withOpacity(0.1),
+      selectedColor: color,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: color.withOpacity(0.5), width: 1),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
     );
   }
 }

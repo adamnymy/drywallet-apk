@@ -1,16 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'pages/homePage/home_page.dart';
+import 'theme/colors.dart';
 
-// Define the color palette
-const Color primaryColor = Color(0xFF7D84B2); // Blue-grey
-const Color primaryDarkColor = Color(0xFF8E9DCC); // Periwinkle
-const Color secondaryColor = Color(0xFFD9DBF1); // Lavender
-const Color backgroundColor = Color(0xFFF0EFF4); // Ghost White
-const Color accentColor = Color(0xFFDBF4A7); // Light lime
-const Color incomeColor = Color(0xFFDBF4A7); // Light lime for income
-const Color expenseColor = Color(0xFFEF4444);
-const Color warningColor = Color(0xFFF59E0B);
+// Removed local color definitions to avoid conflicts.
 
 void main() {
   runApp(const MyApp());
@@ -29,11 +22,12 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(
           seedColor: primaryColor,
           primary: primaryColor,
-          secondary: incomeColor,
-          error: expenseColor,
+          secondary: secondaryColor,
+          background: backgroundColor,
+          error: accentColor,
         ),
         appBarTheme: AppBarTheme(
-          backgroundColor: primaryDarkColor,
+          backgroundColor: primaryColor,
           titleTextStyle: GoogleFonts.poppins(
             fontSize: 20,
             fontWeight: FontWeight.w600,

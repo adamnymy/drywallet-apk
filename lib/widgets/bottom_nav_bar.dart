@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/colors.dart';
 
 class BottomNavBar extends StatefulWidget {
   final int currentIndex;
@@ -25,7 +26,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 70,
+      height: 100,
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -126,8 +127,6 @@ class _NavBarItemState extends State<_NavBarItem>
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = const Color(0xFF7D84B2); // Blue-grey
-
     return GestureDetector(
       onTap: () {
         widget.onTap();
