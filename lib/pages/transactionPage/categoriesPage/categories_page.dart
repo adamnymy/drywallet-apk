@@ -163,7 +163,9 @@ class _CategoriesPageState extends State<CategoriesPage>
                             decoration: BoxDecoration(
                               color: isSelected
                                   ? primaryColor.withValues(alpha: 0.15)
-                                  : const Color(0xFFF9F9ED), // Cream background
+                                  : const Color(
+                                      0xFFF0EFF4,
+                                    ), // Ghost White background
                               shape: BoxShape.circle,
                             ),
                             child: Center(

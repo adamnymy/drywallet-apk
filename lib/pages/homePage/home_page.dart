@@ -148,7 +148,7 @@ class _HomePageState extends State<HomePage>
     // use totals for header delta
     final monthDelta = _totalIncome - _totalExpense;
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9ED), // Cream background
+      backgroundColor: const Color(0xFFF0EFF4), // Ghost White background
       bottomNavigationBar: BottomNavBar(
         currentIndex: _selectedIndex,
         onTap: (i) => setState(() => _selectedIndex = i),

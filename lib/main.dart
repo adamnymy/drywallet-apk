@@ -6,7 +6,7 @@ import 'pages/homePage/home_page.dart';
 const Color primaryColor = Color(0xFF7D84B2); // Blue-grey
 const Color primaryDarkColor = Color(0xFF8E9DCC); // Periwinkle
 const Color secondaryColor = Color(0xFFD9DBF1); // Lavender
-const Color backgroundColor = Color(0xFFFFFFF0); // Ivory
+const Color backgroundColor = Color(0xFFF0EFF4); // Ghost White
 const Color accentColor = Color(0xFFDBF4A7); // Light lime
 const Color incomeColor = Color(0xFFDBF4A7); // Light lime for income
 const Color expenseColor = Color(0xFFEF4444);

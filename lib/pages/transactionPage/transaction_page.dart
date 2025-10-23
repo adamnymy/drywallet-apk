@@ -240,7 +240,7 @@ class _TransactionPageState extends State<TransactionPage>
     final dateFormat = DateFormat('MMM dd, yyyy');
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9ED), // Cream background
+      backgroundColor: const Color(0xFFF0EFF4), // Ghost White background
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
