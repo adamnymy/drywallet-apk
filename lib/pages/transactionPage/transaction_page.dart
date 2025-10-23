@@ -1,5 +1,6 @@
+import 'package:drywallet/models/transaction.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'categoriesPage/categories_page.dart';
 import '../../widgets/custom_keyboard.dart';
@@ -210,14 +211,19 @@ class _TransactionPageState extends State<TransactionPage>
       _selectedTime.minute,
     );
 
-    Navigator.of(context).pop({
-      'title': title,
-      'amount': amount,
-      'type': _type == TxTypeForm.expense ? 'expense' : 'income',
-      'category': _selectedCategory,
-      'date': dateTime,
-      'notes': notes.isEmpty ? null : notes,
-    });
+    final newTransaction = Transaction(
+      description: title,
+      amount: amount,
+      isExpense: _type == TxTypeForm.expense,
+      date: dateTime,
+      category: _selectedCategory,
+      notes: notes.isEmpty ? null : notes,
+    );
+
+    final box = Hive.box<Transaction>('transactions');
+    box.add(newTransaction);
+
+    Navigator.of(context).pop();
   }
 
   @override
@@ -326,7 +332,7 @@ class _TransactionPageState extends State<TransactionPage>
                 height: 80,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: secondaryColor.withOpacity(0.5),
+                  color: secondaryColor.withAlpha((0.5 * 255).toInt()),
                 ),
                 child: Center(
                   child: Text(
@@ -392,7 +398,7 @@ class _TransactionPageState extends State<TransactionPage>
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha((0.05 * 255).toInt()),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -583,11 +589,11 @@ class _TransactionPageState extends State<TransactionPage>
         fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
         color: isSelected ? Colors.white : color,
       ),
-      backgroundColor: color.withOpacity(0.1),
+      backgroundColor: color.withAlpha((0.1 * 255).toInt()),
       selectedColor: color,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: color.withOpacity(0.5), width: 1),
+        side: BorderSide(color: color.withAlpha((0.5 * 255).toInt()), width: 1),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
     );

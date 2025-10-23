@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/colors.dart';
 import '../transaction_page.dart';
@@ -114,9 +115,14 @@ class _CategoriesPageState extends State<CategoriesPage>
                   curve: Curves.easeOutBack,
                   tween: Tween(begin: 0.0, end: 1.0),
                   builder: (context, value, child) {
+                    final opacity = value.clamp(0.0, 1.0);
+                    final scale = value.clamp(
+                      0.0,
+                      1.2,
+                    ); // allow slight scale overshoot but keep safe
                     return Transform.scale(
-                      scale: value,
-                      child: Opacity(opacity: value, child: child),
+                      scale: scale,
+                      child: Opacity(opacity: opacity, child: child),
                     );
                   },
                   child: InkWell(
@@ -170,11 +176,27 @@ class _CategoriesPageState extends State<CategoriesPage>
                               shape: BoxShape.circle,
                             ),
                             child: Center(
-                              child: SvgPicture.asset(
-                                iconPath,
-                                width: 36,
-                                height: 36,
-                                fit: BoxFit.contain,
+                              child: FutureBuilder<ByteData>(
+                                future: rootBundle.load(iconPath),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                          ConnectionState.done &&
+                                      snapshot.hasData) {
+                                    return SvgPicture.asset(
+                                      iconPath,
+                                      width: 36,
+                                      height: 36,
+                                      fit: BoxFit.contain,
+                                    );
+                                  }
+                                  // On error or while loading, fall back to emoji
+                                  final emoji =
+                                      widget.categoryEmojis[category] ?? '📌';
+                                  return Text(
+                                    emoji,
+                                    style: const TextStyle(fontSize: 28),
+                                  );
+                                },
                               ),
                             ),
                           ),

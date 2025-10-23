@@ -1,11 +1,16 @@
+import 'package:drywallet/models/transaction.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'pages/homePage/home_page.dart';
 import 'theme/colors.dart';
 
 // Removed local color definitions to avoid conflicts.
 
-void main() {
+void main() async {
+  await Hive.initFlutter();
+  Hive.registerAdapter(TransactionAdapter());
+  await Hive.openBox<Transaction>('transactions');
   runApp(const MyApp());
 }
 
@@ -23,7 +28,7 @@ class MyApp extends StatelessWidget {
           seedColor: primaryColor,
           primary: primaryColor,
           secondary: secondaryColor,
-          background: backgroundColor,
+          surface: backgroundColor,
           error: accentColor,
         ),
         appBarTheme: AppBarTheme(
