@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/colors.dart';
 import '../transaction_page.dart';
 
 class CategoriesPage extends StatefulWidget {
@@ -45,8 +46,8 @@ class _CategoriesPageState extends State<CategoriesPage>
   Widget build(BuildContext context) {
     final categories = widget.categoryEmojis.keys.toList();
     final primaryColor = widget.transactionType == TxTypeForm.expense
-        ? Colors.red
-        : Colors.green;
+        ? expenseColor
+        : incomeColor;
 
     return GestureDetector(
       onVerticalDragUpdate: (details) {
@@ -186,7 +187,7 @@ class _CategoriesPageState extends State<CategoriesPage>
                                   ? FontWeight.w700
                                   : FontWeight.w500,
                               color: isSelected
-                                  ? primaryColor.shade700
+                                  ? primaryColor
                                   : Colors.grey[800],
                             ),
                             textAlign: TextAlign.center,

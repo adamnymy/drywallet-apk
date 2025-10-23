@@ -2,6 +2,7 @@ import '../homePage/home_page.dart';
 import '../statsPage/stats_page.dart';
 import '../cardsPage/cards_page.dart';
 import '../../widgets/bottom_nav_bar.dart';
+import '../../theme/colors.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -10,12 +11,13 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         title: const Text(
           'Profile',
           style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black87),
         ),
-        backgroundColor: Colors.transparent,
+        backgroundColor: backgroundColor,
         elevation: 0,
         automaticallyImplyLeading: false,
       ),
